@@ -22,9 +22,23 @@ public class KillerShot extends Autonomous{
     
     @Override
     public void paint(Graphics g){
-        g.setColor(Color.BLUE);
+        g.setColor(color);
         g.fillOval((int)x, (int)y, width, height);
     }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public double getXSpeed() {
+        return xSpeed;
+    }
+    
+    public double getYSpeed() {
+        return ySpeed;
+    }
+    
+    
     
     
 }

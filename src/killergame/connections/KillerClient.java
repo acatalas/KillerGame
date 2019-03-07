@@ -36,8 +36,7 @@ public class KillerClient implements Runnable {
                     Socket socket = new Socket(visualHandler.getIp(), visualHandler.getPort());
                     answer(socket);
                     visualHandler.setSocket(socket);
-                    System.out.println("Connection to " + visualHandler.getIp() + 
-                            ":" + visualHandler.getPort() + " SUCCESSFUL");
+                    System.out.println("VisualHandler given : " + socket.getInetAddress().getHostAddress() + socket.getLocalPort() );
 
                 } catch (IOException ex) {
                     System.err.println(ex);

@@ -3,8 +3,12 @@ package killergame.connections;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import killergame.KillerGame;
 
 /**
@@ -35,9 +39,8 @@ public class KillerServer implements Runnable {
     public void run() {
         while (true) {
             try {
-                System.out.println("KillerServer is waiting for a client...");
                 clientSocket = serverSocket.accept();
-                System.out.println("ConnectionHandler for IP: " + clientSocket.getInetAddress().getHostAddress()+
+                System.out.println("ConnectionHandler deployed: " + clientSocket.getInetAddress().getHostAddress()+
                         ":" + clientSocket.getPort());
                 new Thread(new ConnectionHandler(killerGame, clientSocket)).start();
             } catch (IOException e) {

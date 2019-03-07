@@ -11,11 +11,16 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import killergame.connections.VisualHandler;
 import killergame.connections.KillerPad;
 import killergame.connections.KillerServer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -81,6 +86,7 @@ public class KillerGame extends JFrame {
         setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         addGameComponents();
+        pack();
         setVisible(true);
     }
 
@@ -102,8 +108,8 @@ public class KillerGame extends JFrame {
     private void addConfigurationComponents() {
         previousPortField = new JTextField("6666");
         nextPortField = new JTextField("6666");
-        previousIpField = new JTextField("localhost");
-        nextIpField = new JTextField("localhost");
+        previousIpField = new JTextField("172.16.6.96");
+        nextIpField = new JTextField("172.16.6.96");
         startButton = new JButton("Start");
         startButton.addActionListener(new ActionListener() {
             @Override
@@ -173,7 +179,6 @@ public class KillerGame extends JFrame {
                         GridBagConstraints.LINE_START, 
                         GridBagConstraints.HORIZONTAL,
                         new Insets(0, 0, 0, 0), 0, 0));
-        
     }
 
     private void addGameComponents() {
@@ -197,8 +202,14 @@ public class KillerGame extends JFrame {
         objects.add(new KillerWall(this, Color.BLACK, 0, SCREEN_HEIGHT, SCREEN_WIDTH, 10));
     }
     
-    public void removeVisibleObject(VisibleObject object){
-        objects.remove(object);
+    public void removeVisibleObject(VisibleObject object1){
+        Iterator<VisibleObject> iter = objects.iterator();
+        while(iter.hasNext()){
+            VisibleObject object2 = iter.next();
+            if(object1.equals(object2)){
+                iter.remove();
+            }
+        }
     }
     
     public void addVisibleObject(VisibleObject object) {
@@ -233,6 +244,16 @@ public class KillerGame extends JFrame {
         return thisPort;
     }
     
+    public String getServerIp(){
+        String ip = null;
+        try {
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException ex) {
+            System.err.println("FUCK ME");
+        }
+        return ip;
+    }
+    
     public KillerShip getKillerShip(String ip){
         KillerShip killerShip = null;
         for(int i = 0; i < objects.size(); i++){
@@ -259,12 +280,29 @@ public class KillerGame extends JFrame {
                 ((KillerShip) object).bounce();
             }
             if(object.getX() <= 0){
-                previousKiller.sendShip((KillerShip) object, 0 , object.getY());
+                nextKiller.sendShip((KillerShip) object, 
+                        SCREEN_WIDTH - object.getWidth()-50, object.getY());
+                object.die();
+                removeVisibleObject(object);
+            }
+            if(object.getX() >= SCREEN_WIDTH - object.getWidth()){
+                previousKiller.sendShip((KillerShip) object, 50, object.getY());
+                object.die();
+                removeVisibleObject(object);
+            }
+        }
+        
+        if(object instanceof KillerShot){
+            if(object.getY() <= 0 | object.getY() >= SCREEN_HEIGHT - (object.getHeight()*2)){
+                ((KillerShot) object).bounce();
+            }
+            if(object.getX() <= 0){
+                nextKiller.sendShot((KillerShot) object, 
+                        SCREEN_WIDTH - object.getWidth()-50, object.getY());
                 object.die();
             }
-            if(object.getY() >= SCREEN_WIDTH - (object.getWidth() * 2)){
-                nextKiller.sendShip((KillerShip) object, 
-                        SCREEN_WIDTH - object.getWidth(), object.getY());
+            if(object.getX() >= SCREEN_WIDTH - object.getWidth()){
+                previousKiller.sendShot((KillerShot) object, 50, object.getY());
                 object.die();
             }
         }

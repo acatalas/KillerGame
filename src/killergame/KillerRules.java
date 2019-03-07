@@ -15,13 +15,9 @@ public class KillerRules {
             if (object1 instanceof KillerMeteor && object2 instanceof KillerMeteor){
                 object1.bounce();
             }
-            if(object1 instanceof KillerMeteor && object2 instanceof KillerWall){
-                object1.bounce();
-            }
-            
-            if(object1 instanceof KillerShip && object2 instanceof KillerWall){
-                object1.bounce();
-                
+            if(object1 instanceof KillerShot && object2 instanceof KillerShip){
+                object1.die();
+                object2.die();
             }
         }
     }

@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.awt.Color;
 import killergame.KillerGame;
 import killergame.KillerShip;
+import killergame.KillerShot;
 
 /**
  *
@@ -38,7 +39,7 @@ public class VisualHandler implements Runnable{
         this.ip = socket.getInetAddress().getHostAddress();
         try{
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new PrintWriter(socket.getOutputStream());
+            out = new PrintWriter(socket.getOutputStream(), true);
         } catch (IOException e){
             System.err.println(e);
         }
@@ -64,6 +65,10 @@ public class VisualHandler implements Runnable{
         return socket;
     }
     
+    public PrintWriter getOuWriter(){
+        return out;
+    }
+    
     
     @Override
     public void run() {
@@ -85,8 +90,9 @@ public class VisualHandler implements Runnable{
         String line;
         while (!done) {
             try {
+                
                 line = in.readLine();
-                System.out.println("Visual Handler message:" + line);
+                System.out.println(line);
                 if (line != null) {
                     request(line);
                 }
@@ -99,27 +105,57 @@ public class VisualHandler implements Runnable{
     }
     
     public void request(String line) {
-        System.out.println(line);
-
+        
+        //String ip, Color color, String name, double x, double y, doubleXSpeed, doubleYSpeed
         if(line.startsWith("KS")){
             String[] shipData = line.split(":");
-            String ip = shipData[1];
-            double x = Double.valueOf(shipData[2]);
-            double y = Double.valueOf(shipData[3]);
-            double xSpeed = Double.valueOf(shipData[4]);
-            double ySpeed = Double.valueOf(shipData[5]);
-            Color color = Color.decode("#" + shipData[6]);
-            String name = shipData[7];
-            
-            KillerShip killerShip = new KillerShip(killerGame, color, x, y, ip, name);
+            String ip = shipData[1];    //ip
+            Color color = Color.decode("#" + shipData[2]); //color
+            String name = shipData[3];  //name
+            double x = Double.valueOf(shipData[4]); //X
+            double y = Double.valueOf(shipData[5]); //y
+            double xSpeed = Double.valueOf(shipData[6]);
+            double ySpeed = Double.valueOf(shipData[7]);
+
+            KillerShip killerShip = new KillerShip(killerGame, color, x, y, xSpeed, ySpeed, ip, name);
             killerGame.addVisibleObject(killerShip);
             new Thread(killerShip).start();
+        
+        //RKS:shipIp:serverIp:serverPort:movement
+        } else if(line.startsWith("RKS")){
+            KillerPad.readKillerAction(killerGame, out, line);
             
+            
+        } else if(line.startsWith("KB")){
+            String[] shotData = line.split(":");
+            double x = Double.valueOf(shotData[1]);
+            double y = Double.valueOf(shotData[2]);
+            double xSpeed = Double.valueOf(shotData[3]);
+            double ySpeed = Double.valueOf(shotData[4]);
+            Color color = Color.decode("#" + shotData[5]);
+            
+            KillerShot shot = new KillerShot(killerGame, color, x, y, xSpeed, ySpeed, 10, 10);
+            killerGame.addVisibleObject(shot);
+            new Thread(shot).start();
         }
     }
     
+    //"KS:" + ip + ":" + color.getRGB() + ":" + name;
     public void sendShip(KillerShip ship, double x, double y){
-        System.out.println("Ship to send: " + ship.toString());
-        out.print(ship.toString() + ":" + x + ":" + y);
+        System.out.println("KS:" + ship.getIp() + ":" + rgbToHex(ship.getColor()) + ":" + ship.getName() + ":" +  x + ":" + y + ":" + ship.getXSpeed() + ":" + ship.getYSpeed());
+        out.println("KS:" + ship.getIp() + ":" + rgbToHex(ship.getColor()) + ":" + ship.getName() + ":" +  x + ":" + y + ":" + ship.getXSpeed() + ":" + ship.getYSpeed());
+    }
+    
+    //"KB:" + x + y + xSpeed + ySpeed + color
+    public void sendShot(KillerShot shot, double x, double y){
+        out.println("KB:" + x + ":" + y + ":" + shot.getXSpeed() + ":" + shot.getYSpeed() + ":" + rgbToHex(shot.getColor()));
+    }
+    
+    private String rgbToHex(Color color){
+        String hex = Integer.toHexString(color.getRGB() & 0xffffff);
+        if (hex.length() < 6) {
+            hex = "0" + hex;
+            }           
+        return hex;
     }
 }

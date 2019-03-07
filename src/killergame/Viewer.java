@@ -56,10 +56,9 @@ public class Viewer extends Canvas implements Runnable {
         //clear the background
         imageGraphics.setColor(Color.BLACK);
         imageGraphics.fillRect(0, 0, KillerGame.SCREEN_WIDTH, KillerGame.SCREEN_HEIGHT);
-        for (VisibleObject object : killerGame.getVisibleObjects()) {
-            object.paint(imageGraphics);
+        for (int i = 0; i < killerGame.getVisibleObjects().size(); i++){
+            killerGame.getVisibleObjects().get(i).paint(imageGraphics);
         }
-
     }
 
     

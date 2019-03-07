@@ -35,7 +35,7 @@ public class KillerPad implements Runnable {
         this.ip = socket.getInetAddress().getHostAddress();
         this.userInfo = userInfo;
         
-        addKillerPad(userInfo);
+        addKillerShip(userInfo);
     }
 
     @Override
@@ -49,8 +49,9 @@ public class KillerPad implements Runnable {
             System.err.println(ex);
         }
         //When socket closed, delete killerShip
-        killerGame.removeVisibleObject(killerShip);
+        killerShip = null;
         killerGame.removeKillerPad(this);
+        
         System.out.println("KillerPad connection closed" + socket.getInetAddress().getHostAddress());
     }
 
@@ -60,7 +61,6 @@ public class KillerPad implements Runnable {
         while (!done) {
             try {
                 line = in.readLine();
-                System.out.println(line);
                 if (line != null) {
                     if (line.equals("bye")) {
                         killerGame.removeKillerPad(this);
@@ -79,25 +79,51 @@ public class KillerPad implements Runnable {
 
     }
     
-    private void addKillerPad(String userInfo){
+    private void addKillerShip(String userInfo){
         String name = userInfo.substring(0, userInfo.indexOf("&"));
         String color = "#" + userInfo.substring(userInfo.indexOf("&") + 1);
-        killerShip = new KillerShip(killerGame, Color.decode(color), 100, 100, ip, name);
+        
+        killerShip = new KillerShip(killerGame, Color.decode(color), 100, 100, 
+                KillerShip.IDLE_SPEED, KillerShip.IDLE_SPEED, ip, name);
         killerGame.addVisibleObject(killerShip);
         new Thread(killerShip).start();
     }
     
     public void request(String msg) {
-        killerShip.doKillerAction(new KillerAction(msg));
+        if(killerGame.getKillerShip(ip) != null){
+            killerGame.getKillerShip(ip).doKillerAction(new KillerAction(msg));
+        } else if(killerGame.getKillerShip(ip) == null){
+            killerGame.getNextKiller().getOuWriter().println("RKS:" + ip + ":" + killerGame.getServerIp() + ":" + killerGame.getPort() + ":" + msg); 
+        }
     }
     
-     public static void removeShip(KillerGame killerGame, String ip) {
+    //RKS:shipIp:serverIp:serverPort:movement
+    public static void readKillerAction(KillerGame killerGame, PrintWriter out, String msg){
+        if(msg.startsWith("RKS") && 
+                (killerGame.getKillerShip(msg.split(":")[1]) != null) && 
+                ((((msg.split(":")[2].equals(killerGame.getServerIp())) &
+                (!(msg.split(":")[3].equals(killerGame.getPort()))))) |
+                (!(msg.split(":")[2].equals(killerGame.getServerIp())) &
+                ((msg.split(":")[3].equals(killerGame.getPort())))))){
+            
+            killerGame.getKillerShip(msg.split(":")[1]).doKillerAction(new KillerAction(msg.split(":")[4]));
+        
+        } else if(msg.startsWith("RKS") && 
+                (killerGame.getKillerShip(msg.split(":")[1]) == null) && 
+                (msg.split(":")[2].equals(killerGame.getServerIp()))&&
+                (msg.split(":")[3].equals(killerGame.getPort()))){ 
+            
+        }else if(msg.startsWith("RKS") && killerGame.getKillerShip(msg.split(":")[1]) == null){
+           out.println(msg); 
+        }
+    }
+    
+    public static void removeShip(KillerGame killerGame, String ip) {
          //Check if I have ship
         KillerShip killerShipToRemove = killerGame.getKillerShip(ip);
         //Remove ship from game
         if(killerShipToRemove != null){
             killerShipToRemove.die();
-            killerGame.removeVisibleObject(killerShipToRemove);
             System.out.println("KillerShip deleted");
         }
     }

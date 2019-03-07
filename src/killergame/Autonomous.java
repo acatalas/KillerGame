@@ -6,7 +6,6 @@
 package killergame;
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 
 /**
  *
@@ -24,13 +23,13 @@ public class Autonomous extends Alive {
     @Override
     public void run() {
         while (!dead) {
+            killerGame.testCollision(this);
+            move();
             try {
                 Thread.sleep(10);
             } catch (InterruptedException ex) {
                 System.err.println(ex);
             }
-            killerGame.testCollision(this);
-            move();
         }
         killerGame.removeVisibleObject(this);
     }

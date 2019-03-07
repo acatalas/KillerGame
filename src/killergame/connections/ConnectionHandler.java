@@ -45,18 +45,21 @@ public class ConnectionHandler implements Runnable {
                     line.substring(line.indexOf(":") + 1));
             killerGame.getKillerPads().add(killerPad);
             new Thread(killerPad).start();
+            System.out.println("KP connected");
 
         //Else if request from previous killer (PK:port)
-        } else if (line.startsWith("PK")) {
+        } else if (line.startsWith("NK")) {
             VisualHandler previousKiller = killerGame.getPreviousKiller();
             previousKiller.setSocket(socket);
             previousKiller.setPort(Integer.parseInt(line.substring(line.indexOf(":") + 1)));
+            System.out.println("PK connected");
         
         //Else if request from next killer  (NK:port)
-        } else if (line.startsWith("NK")) {
+        } else if (line.startsWith("PK")) {
             VisualHandler nextKiller = killerGame.getNextKiller();
             nextKiller.setSocket(socket);
             nextKiller.setPort(Integer.parseInt(line.substring(line.indexOf(":") + 1)));
+            System.out.println("NK connected");
         } 
     }
 }
