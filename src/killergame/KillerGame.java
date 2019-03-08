@@ -41,7 +41,7 @@ public class KillerGame extends JFrame {
     //Game screen objects
     private Viewer viewer;
     private JPanel gamePanel;
-    
+
     //Config screen objects
     private JFrame configFrame;
     private JPanel configPanel;
@@ -50,13 +50,13 @@ public class KillerGame extends JFrame {
     private JTextField previousIpField;
     private JTextField nextIpField;
     private JButton startButton;
-    
+
     //Connection objects
     private KillerServer killerServer;
     private VisualHandler previousKiller;   //left
     private VisualHandler nextKiller;       //right
     private int thisPort;
-    
+
     private ArrayList<KillerPad> killerPads = new ArrayList();
     //Game objects
     private List<VisibleObject> objects;
@@ -65,14 +65,14 @@ public class KillerGame extends JFrame {
         showPortDialog();
         initializeGameScreen();
         initializeConfigurationScreen();
-        
+
         killerPads = new ArrayList<>();
         previousKiller = new VisualHandler(this);
         nextKiller = new VisualHandler(this);
-        
+
         addVisibleObjects();
         startAliveObjects();
-        
+
         killerServer = new KillerServer(this, thisPort);
         new Thread(viewer).start();
         new Thread(killerServer).start();
@@ -92,49 +92,49 @@ public class KillerGame extends JFrame {
     private void initializeConfigurationScreen() {
         configFrame = new JFrame(KillerGame.TITLE);
         configFrame.setSize(300, 200);
-        configPanel = (JPanel)configFrame.getContentPane();
+        configPanel = (JPanel) configFrame.getContentPane();
         configPanel.setLayout(new GridBagLayout());
-        
+
         addConfigurationComponents();
-        
+
         configFrame.setVisible(true);
     }
-    
-    private void showPortDialog(){
+
+    private void showPortDialog() {
         thisPort = Integer.valueOf(JOptionPane.showInputDialog(this, "This device's port"));
     }
 
     private void addConfigurationComponents() {
         previousPortField = new JTextField("6666");
         nextPortField = new JTextField("6666");
-        previousIpField = new JTextField("192.168.1.52");
-        nextIpField = new JTextField("192.168.1.52");
+        previousIpField = new JTextField("172.16.8.48");
+        nextIpField = new JTextField("172.16.8.48");
         startButton = new JButton("Start");
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(previousKiller.getIp() == null && previousKiller.getPort() == 0){
+                if (previousKiller.getIp() == null && previousKiller.getPort() == 0) {
                     previousKiller.setIp(previousIpField.getText());
                     previousKiller.setPort(Integer.valueOf(previousPortField.getText()));
                 }
-                if(nextKiller.getIp() == null && nextKiller.getPort() == 0){
+                if (nextKiller.getIp() == null && nextKiller.getPort() == 0) {
                     nextKiller.setIp(nextIpField.getText());
                     nextKiller.setPort(Integer.valueOf(nextPortField.getText()));
                 }
             }
         });
         configPanel.add(new JLabel("Configure the left computer"),
-                new GridBagConstraints(0, 0, 4, 1, 1.0, 0.0, 
+                new GridBagConstraints(0, 0, 4, 1, 1.0, 0.0,
                         GridBagConstraints.LINE_START,
                         GridBagConstraints.HORIZONTAL,
                         new Insets(10, 5, 0, 0), 0, 0));
         configPanel.add(new JLabel("Port: "),
-                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.2, 
+                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.2,
                         GridBagConstraints.LINE_START,
                         GridBagConstraints.NONE,
                         new Insets(5, 5, 5, 5), 0, 0));
         configPanel.add(previousPortField,
-                new GridBagConstraints(1, 1, 1, 1, 0.0, 0.2, 
+                new GridBagConstraints(1, 1, 1, 1, 0.0, 0.2,
                         GridBagConstraints.LINE_START,
                         GridBagConstraints.HORIZONTAL,
                         new Insets(0, 0, 0, 0), 0, 0));
@@ -144,22 +144,22 @@ public class KillerGame extends JFrame {
                         GridBagConstraints.NONE,
                         new Insets(5, 5, 5, 5), 0, 0));
         configPanel.add(previousIpField,
-                new GridBagConstraints(3, 1, 1, 1, 0.0, 0.2, 
+                new GridBagConstraints(3, 1, 1, 1, 0.0, 0.2,
                         GridBagConstraints.LINE_START,
-                        GridBagConstraints.HORIZONTAL, 
+                        GridBagConstraints.HORIZONTAL,
                         new Insets(0, 0, 0, 5), 0, 0));
         configPanel.add(new JLabel("Configure the right computer"),
                 new GridBagConstraints(0, 2, 4, 1, 0.0, 0.0,
                         GridBagConstraints.LINE_START,
-                        GridBagConstraints.HORIZONTAL, 
+                        GridBagConstraints.HORIZONTAL,
                         new Insets(0, 5, 0, 0), 0, 0));
         configPanel.add(new JLabel("Port: "),
-                new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, 
+                new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
                         GridBagConstraints.LINE_START,
                         GridBagConstraints.NONE,
                         new Insets(5, 5, 5, 5), 0, 0));
         configPanel.add(nextPortField,
-                new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, 
+                new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
                         GridBagConstraints.LINE_START,
                         GridBagConstraints.HORIZONTAL,
                         new Insets(0, 0, 0, 0), 0, 0));
@@ -169,13 +169,13 @@ public class KillerGame extends JFrame {
                         GridBagConstraints.NONE,
                         new Insets(5, 5, 5, 5), 0, 0));
         configPanel.add(nextIpField,
-                new GridBagConstraints(3, 3, 1, 1, 0.0, 0.2, 
+                new GridBagConstraints(3, 3, 1, 1, 0.0, 0.2,
                         GridBagConstraints.LINE_START,
-                        GridBagConstraints.HORIZONTAL, 
+                        GridBagConstraints.HORIZONTAL,
                         new Insets(0, 0, 0, 5), 0, 0));
         configPanel.add(startButton,
                 new GridBagConstraints(0, 4, 4, 1, 0.0, 0.0,
-                        GridBagConstraints.LINE_START, 
+                        GridBagConstraints.LINE_START,
                         GridBagConstraints.HORIZONTAL,
                         new Insets(0, 0, 0, 0), 0, 0));
     }
@@ -195,13 +195,13 @@ public class KillerGame extends JFrame {
         2,
         2));
         }*/
-        
+
         //Adds KillerWall
         objects.add(new KillerWall(this, Color.BLACK, 0, -10.0, SCREEN_WIDTH, 10));
         objects.add(new KillerWall(this, Color.BLACK, 0, SCREEN_HEIGHT, SCREEN_WIDTH, 10));
     }
-    
-    public void removeVisibleObject(VisibleObject object1){
+
+    public void removeVisibleObject(VisibleObject object1) {
         /*for(int i = 0; i < objects.size(); i++){
             if(objects.get(i).equals(object1)){
                 objects.remove(i);
@@ -209,57 +209,66 @@ public class KillerGame extends JFrame {
         }*/
         objects.remove(object1);
     }
-    
+
     public void addVisibleObject(VisibleObject object) {
         objects.add(object);
     }
-    
+
     public List<VisibleObject> getVisibleObjects() {
         return objects;
     }
-    
-    public void addKillerPad(KillerPad killerPad){
+
+    public void addKillerPad(KillerPad killerPad) {
         killerPads.add(killerPad);
     }
-    
-    public void removeKillerPad(KillerPad killerPad){
+
+    public void removeKillerPad(KillerPad killerPad) {
         killerPads.remove(killerPad);
     }
-    
-    public List<KillerPad> getKillerPads(){
+
+    public List<KillerPad> getKillerPads() {
         return killerPads;
     }
-    
-    public VisualHandler getPreviousKiller(){
+
+    public VisualHandler getPreviousKiller() {
         return previousKiller;
     }
-    
-    public VisualHandler getNextKiller(){
+
+    public VisualHandler getNextKiller() {
         return nextKiller;
     }
-    
-    public int getPort(){
+
+    public int getPort() {
         return thisPort;
     }
-    
-    public String getServerIp(){
+
+    public String getServerIp() {
         String ip = null;
         try {
             ip = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException ex) {
-            
+
         }
         return ip;
     }
-    
-    public KillerShip getKillerShip(String ip){
+
+    public KillerShip getKillerShip(String ip) {
         KillerShip killerShip = null;
-        for(int i = 0; i < objects.size(); i++){
-            if(objects.get(i) instanceof KillerShip 
-                    && ((KillerShip)objects.get(i)).getIp().equals(ip))
-                    killerShip = (KillerShip)objects.get(i);
-                }
+        for (int i = 0; i < objects.size(); i++) {
+            if (objects.get(i) instanceof KillerShip
+                    && ((KillerShip) objects.get(i)).getIp().equals(ip)) {
+                killerShip = (KillerShip) objects.get(i);
+            }
+        }
         return killerShip;
+    }
+    
+    public void setLeftConnection(String state, String ip) {
+        viewer.setLeftConnection(state, ip);
+    }
+
+    public void setRightConnection(String state, String ip) {
+        viewer.setRightConnection(state, ip);
     }
 
     private void startAliveObjects() {
@@ -269,101 +278,83 @@ public class KillerGame extends JFrame {
             }
         }
     }
-    
-    public void removeKillerShip(KillerShip ship){
+
+    public void removeKillerShip(KillerShip ship) {
         removeVisibleObject(ship);
     }
-    
+
     public synchronized void testCollision(VisibleObject object) {
-        
         //Border collision of ships
-        if(object instanceof KillerShip){
-            if(object.getY() <= 0 | object.getY() >= SCREEN_HEIGHT - (object.getHeight()*2)){
+        if (object instanceof KillerShip) {
+            if (object.getY() <= 0 | object.getY() >= SCREEN_HEIGHT - (object.getHeight() * 2)) {
                 ((KillerShip) object).bounce();
             }
-            if(object.getX() <= 0){
-                previousKiller.sendShip((KillerShip) object, 
-                        SCREEN_WIDTH - object.getWidth()-50, object.getY());
+            if (object.getX() <= 0 && previousKiller.getSocket() != null) {
+                previousKiller.sendShip((KillerShip) object,
+                        SCREEN_WIDTH - object.getWidth() - 50, object.getY());
                 object.die();
                 removeVisibleObject(object);
             }
-            if(object.getX() >= SCREEN_WIDTH - object.getWidth()){
+
+            if (object.getX() >= SCREEN_WIDTH - object.getWidth() && nextKiller.getSocket() != null) {
                 nextKiller.sendShip((KillerShip) object, 50, object.getY());
                 object.die();
                 removeVisibleObject(object);
             }
         }
-        
-        //Border collision of shots
-        /*if(object instanceof KillerShot){
-            if(object.getY() <= 0 | object.getY() >= SCREEN_HEIGHT - (object.getHeight()*2)){
-                ((KillerShot) object).bounce();
-            }
-            if(object.getX() <= 0){
-                //previousKiller.sendShot((KillerShot) object, 
-                //        SCREEN_WIDTH - object.getWidth()-10, object.getY());
-                object.die();
-            }
-            if(object.getX() >= SCREEN_WIDTH - object.getWidth()){
-                //nextKiller.sendShot((KillerShot) object, 10, object.getY());
-                object.die();
-            }
-        }
-        
-        for (int i = 0; i < objects.size(); i++) {
-            if (objects.get(i) != object) {
-                KillerRules.testCollision(object, objects.get(i));
-            }
-            
-        }*/
     }
-    
-    public void testShotCollision(KillerShot shot){
-        for (int i = 0; i < objects.size(); i++){
-            if(objects.get(i) instanceof KillerShip){
-                KillerShip ship = (KillerShip)objects.get(i);
-                if(KillerRules.testShotCollision(shot, ship)){
+
+    public void testShotCollision(KillerShot shot) {
+        for (int i = 0; i < objects.size(); i++) {
+            if (objects.get(i) instanceof KillerShip) {
+                KillerShip ship = (KillerShip) objects.get(i);
+                if (KillerRules.testShotCollision(shot, ship)) {
                     KillerPad pad = foundShipInPad(ship.getIp());
-                    if(pad == null){
+                    if (pad == null) {
                         KillerPad.sendKillShip(getNextKiller().getOuWriter(), ship.getIp());
                     } else {
                         pad.killShip();
                     }
                 }
-                
+
             }
         }
+
+        if (shot.getY() <= 0 | shot.getY() >= SCREEN_HEIGHT - (shot.getHeight() * 2)) {
+            shot.bounce();
+        }
         
-        if(shot.getY() <= 0 | shot.getY() >= SCREEN_HEIGHT - (shot.getHeight()*2)){
-                shot.bounce();
-            }
-            if(shot.getX() <= 0){
-                previousKiller.sendShot((KillerShot) shot, 
-                       SCREEN_WIDTH - shot.getWidth()-10, shot.getY());
-                shot.die();
-            }
-            if(shot.getX() >= SCREEN_WIDTH - shot.getWidth()){
-                nextKiller.sendShot((KillerShot) shot, 10, shot.getY());
-                shot.die();
-            }
+        if (shot.getX() <= 0 && previousKiller.getSocket() != null) {
+            previousKiller.sendShot((KillerShot) shot,
+                    SCREEN_WIDTH - shot.getWidth() - 10, shot.getY());
+            shot.die();
+        }
+        
+        if (shot.getX() >= SCREEN_WIDTH - shot.getWidth() && nextKiller.getSocket() != null) {
+            nextKiller.sendShot((KillerShot) shot, 10, shot.getY());
+            shot.die();
+        }
+        
+        if(shot.getX() >= SCREEN_WIDTH - shot.getWidth() && nextKiller.getSocket()== null ){
+            shot.bounce();
+        }
+        
+        if (shot.getX() <= 0 && previousKiller.getSocket() == null) {
+            previousKiller.sendShot((KillerShot) shot,
+                    SCREEN_WIDTH - shot.getWidth() - 10, shot.getY());
+            shot.bounce();
+        }
+        
     }
-    
-    public KillerPad foundShipInPad(String ip){
+
+    public KillerPad foundShipInPad(String ip) {
         KillerPad killerPad = null;
-          for(int i = 0; i < killerPads.size(); i++){
-              if(killerPads.get(i).getIp().equals(ip)){
-                  killerPad = killerPads.get(i);
-              }
-          }  
-          return killerPad;
-    }
-    
-    public void setLeftConnection(String ip){
-        viewer.setLeftConnection(ip);
-    }
-    
-    public void setRightConnection(String ip){
-        viewer.setRightConnection(ip);
+        for (int i = 0; i < killerPads.size(); i++) {
+            if (killerPads.get(i).getIp().equals(ip)) {
+                killerPad = killerPads.get(i);
+            }
+        }
+        return killerPad;
     }
 
     public static void main(String[] args) {

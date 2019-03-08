@@ -18,7 +18,7 @@ public class KillerClient implements Runnable {
 
     private KillerGame killerGame;
     private VisualHandler visualHandler;
-   
+
     public KillerClient(KillerGame killerGame, VisualHandler visualHandler) {
         this.killerGame = killerGame;
         this.visualHandler = visualHandler;
@@ -27,38 +27,62 @@ public class KillerClient implements Runnable {
     @Override
     public void run() {
         while (true) {
+            if (this.visualHandler.getSocket() != null) {
+                System.out.println("Control time: " + (System.currentTimeMillis() - visualHandler.getCurrentTime()));
+                if (System.currentTimeMillis() - visualHandler.getCurrentTime() > 1000) {
+                    visualHandler.killSocket();
+                }
+            }
             if (this.visualHandler.getIp() != null && this.visualHandler.getSocket() == null) {
+                
+                disconnectHandler();
+                
                 try {
-                    // Solicitar conexion al servidor
-                    // Pasar a otro metodo
-                    System.out.println("KillerClient connecting to " + visualHandler.getIp()
-                    + ":" + visualHandler.getPort());
+                    /*System.out.println("KillerClient connecting to " + visualHandler.getIp()
+                            + ":" + visualHandler.getPort());*/
                     Socket socket = new Socket(visualHandler.getIp(), visualHandler.getPort());
+
                     answer(socket);
                     visualHandler.setSocket(socket);
-                    System.out.println("VisualHandler given : " + socket.getInetAddress().getHostAddress() + socket.getLocalPort() );
-
+                    //System.out.println("VisualHandler given : " + socket.getInetAddress().getHostAddress() + socket.getLocalPort());
+                    
+                    connectHandler(socket);
+                    
+                    visualHandler.sendEcho();
                 } catch (IOException ex) {
                     System.err.println(ex);
                 } catch (Exception ex) {
                     System.err.println(ex);
                 }
-
             }
             try {
                 Thread.sleep(500);
-            } catch (InterruptedException ex) {
-            }
-
+            } catch (InterruptedException ex) {}
         }
     }
-  
-    private void answer(Socket socket) throws IOException{
+
+    private void answer(Socket socket) throws IOException {
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-        if(killerGame.getPreviousKiller() == visualHandler){
+        if (killerGame.getPreviousKiller() == visualHandler) {
             out.println("PK:" + killerGame.getPort());
         } else {
             out.println("NK:" + killerGame.getPort());
+        }
+    }
+
+    private void disconnectHandler() {
+        if (killerGame.getNextKiller().equals(visualHandler)) {
+            killerGame.setRightConnection("DISCONNECTED", "");
+        } else {
+            killerGame.setLeftConnection("DISCONNECTED", "");
+        }
+    }
+
+    private void connectHandler(Socket socket) {
+        if (killerGame.getNextKiller().equals(visualHandler)) {
+            killerGame.setRightConnection("CONNECTED", socket.getInetAddress().getHostAddress());
+        } else {
+            killerGame.setLeftConnection("CONNECTED", socket.getInetAddress().getHostAddress());
         }
     }
 }

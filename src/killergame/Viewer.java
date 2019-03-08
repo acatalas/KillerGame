@@ -21,12 +21,12 @@ public class Viewer extends Canvas implements Runnable {
     private Image image = null;
     private Graphics imageGraphics;
     private KillerGame killerGame;
-    private String leftConnectionState;
-    private Color leftConnectionColor;
-    private String rightConnectionState;
-    private Color rightConnectionColor;
-    private String rightConnectionIp;
     private String leftConnectionIp;
+    private String leftConnectionState;
+    private String rightConnectionIp;
+    private String rightConnectionState;
+    private Color leftConnectionColor;
+    private Color rightConnectionColor;
 
     public Viewer(KillerGame killerGame) {
         super();
@@ -44,7 +44,6 @@ public class Viewer extends Canvas implements Runnable {
     @Override
     public void run() {
         while (true) {
-            
             gameRender();
             paint(this.getGraphics());
             try {
@@ -55,15 +54,15 @@ public class Viewer extends Canvas implements Runnable {
         }
     }
     
-    public void setLeftConnection(String ip){
+    public void setLeftConnection(String state, String ip){
         leftConnectionColor = Color.GREEN;
-        leftConnectionState = "CONNECTED";
+        leftConnectionState = state;
         leftConnectionIp = ip;
     }
     
-    public void setRightConnection(String ip){
+    public void setRightConnection(String state, String ip){
         rightConnectionColor = Color.GREEN;
-        rightConnectionState = "CONNECTED";
+        rightConnectionState = state;
         rightConnectionIp = ip;;
     }
 

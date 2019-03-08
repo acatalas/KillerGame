@@ -6,7 +6,6 @@
 package killergame;
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 
 /**
  *
@@ -38,11 +37,6 @@ public class Controlled extends Alive {
     public void move() {
         x = (int)(x + xSpeed);
         y = (int)(y + ySpeed);
-
-        //Checks collision with right or left of screen
-        if (x > RIGHT_MARGIN | x < LEFT_MARGIN) {
-            //Move to next screen
-        }
 
         rectangle.setLocation((int)x, (int)y);
     }

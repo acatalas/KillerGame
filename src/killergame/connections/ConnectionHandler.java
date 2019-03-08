@@ -66,7 +66,7 @@ public class ConnectionHandler implements Runnable {
         previousKiller.setSocket(socket);
         previousKiller.setPort(Integer.parseInt(info.substring(info.indexOf(":") + 1)));
         System.out.println("PK connected");
-        killerGame.setLeftConnection(socket.getInetAddress().getHostAddress());
+        killerGame.setLeftConnection("CONNECTED",socket.getInetAddress().getHostAddress());
     }
     
     private void connectNextKiller(String info){
@@ -74,6 +74,6 @@ public class ConnectionHandler implements Runnable {
         nextKiller.setSocket(socket);
         nextKiller.setPort(Integer.parseInt(info.substring(info.indexOf(":") + 1)));
         System.out.println("NK connected");
-        killerGame.setRightConnection(socket.getInetAddress().getHostAddress());
+        killerGame.setRightConnection("CONNECTED", socket.getInetAddress().getHostAddress());
     }
 }

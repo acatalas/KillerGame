@@ -101,7 +101,7 @@ public class KillerPad implements Runnable {
     public static void readKillerAction(KillerGame killerGame, PrintWriter out, String msg){
         String ip = killerGame.getServerIp();
         int port = killerGame.getPort();
-        System.out.println(msg);
+       
         if(msg.startsWith("RKS") && 
                 (killerGame.getKillerShip(msg.split(":")[1]) != null) && 
                 ((((msg.split(":")[2].equals(ip)) &
@@ -117,6 +117,7 @@ public class KillerPad implements Runnable {
                 (!msg.split(":")[3].equals(port)))) |
                 (!msg.split(":")[2].equals(ip)) &
                 ((msg.split(":")[3].equals(port))))){
+           
             out.println(msg);
         }
     }
