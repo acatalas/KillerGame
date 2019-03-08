@@ -53,7 +53,6 @@ public class KillerGame extends JFrame {
     
     //Connection objects
     private KillerServer killerServer;
-    private KillerPad killerPad;
     private VisualHandler previousKiller;   //left
     private VisualHandler nextKiller;       //right
     private int thisPort;
@@ -108,8 +107,8 @@ public class KillerGame extends JFrame {
     private void addConfigurationComponents() {
         previousPortField = new JTextField("6666");
         nextPortField = new JTextField("6666");
-        previousIpField = new JTextField("172.16.6.96");
-        nextIpField = new JTextField("172.16.6.96");
+        previousIpField = new JTextField("192.168.1.52");
+        nextIpField = new JTextField("192.168.1.52");
         startButton = new JButton("Start");
         startButton.addActionListener(new ActionListener() {
             @Override
@@ -203,13 +202,12 @@ public class KillerGame extends JFrame {
     }
     
     public void removeVisibleObject(VisibleObject object1){
-        Iterator<VisibleObject> iter = objects.iterator();
-        while(iter.hasNext()){
-            VisibleObject object2 = iter.next();
-            if(object1.equals(object2)){
-                iter.remove();
+        /*for(int i = 0; i < objects.size(); i++){
+            if(objects.get(i).equals(object1)){
+                objects.remove(i);
             }
-        }
+        }*/
+        objects.remove(object1);
     }
     
     public void addVisibleObject(VisibleObject object) {
@@ -249,7 +247,7 @@ public class KillerGame extends JFrame {
         try {
             ip = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException ex) {
-            System.err.println("FUCK ME");
+            
         }
         return ip;
     }
@@ -257,12 +255,10 @@ public class KillerGame extends JFrame {
     public KillerShip getKillerShip(String ip){
         KillerShip killerShip = null;
         for(int i = 0; i < objects.size(); i++){
-            if(objects.get(i) instanceof KillerShip){
-                if((objects.get(i) instanceof KillerShip) 
-                        && ((KillerShip)objects.get(i)).getIp().equalsIgnoreCase(ip))
+            if(objects.get(i) instanceof KillerShip 
+                    && ((KillerShip)objects.get(i)).getIp().equals(ip))
                     killerShip = (KillerShip)objects.get(i);
                 }
-            }
         return killerShip;
     }
 
@@ -274,35 +270,42 @@ public class KillerGame extends JFrame {
         }
     }
     
-    public void testCollision(VisibleObject object) {
+    public void removeKillerShip(KillerShip ship){
+        removeVisibleObject(ship);
+    }
+    
+    public synchronized void testCollision(VisibleObject object) {
+        
+        //Border collision of ships
         if(object instanceof KillerShip){
             if(object.getY() <= 0 | object.getY() >= SCREEN_HEIGHT - (object.getHeight()*2)){
                 ((KillerShip) object).bounce();
             }
             if(object.getX() <= 0){
-                nextKiller.sendShip((KillerShip) object, 
+                previousKiller.sendShip((KillerShip) object, 
                         SCREEN_WIDTH - object.getWidth()-50, object.getY());
                 object.die();
                 removeVisibleObject(object);
             }
             if(object.getX() >= SCREEN_WIDTH - object.getWidth()){
-                previousKiller.sendShip((KillerShip) object, 50, object.getY());
+                nextKiller.sendShip((KillerShip) object, 50, object.getY());
                 object.die();
                 removeVisibleObject(object);
             }
         }
         
-        if(object instanceof KillerShot){
+        //Border collision of shots
+        /*if(object instanceof KillerShot){
             if(object.getY() <= 0 | object.getY() >= SCREEN_HEIGHT - (object.getHeight()*2)){
                 ((KillerShot) object).bounce();
             }
             if(object.getX() <= 0){
-                nextKiller.sendShot((KillerShot) object, 
-                        SCREEN_WIDTH - object.getWidth()-50, object.getY());
+                //previousKiller.sendShot((KillerShot) object, 
+                //        SCREEN_WIDTH - object.getWidth()-10, object.getY());
                 object.die();
             }
             if(object.getX() >= SCREEN_WIDTH - object.getWidth()){
-                previousKiller.sendShot((KillerShot) object, 50, object.getY());
+                //nextKiller.sendShot((KillerShot) object, 10, object.getY());
                 object.die();
             }
         }
@@ -311,7 +314,56 @@ public class KillerGame extends JFrame {
             if (objects.get(i) != object) {
                 KillerRules.testCollision(object, objects.get(i));
             }
+            
+        }*/
+    }
+    
+    public void testShotCollision(KillerShot shot){
+        for (int i = 0; i < objects.size(); i++){
+            if(objects.get(i) instanceof KillerShip){
+                KillerShip ship = (KillerShip)objects.get(i);
+                if(KillerRules.testShotCollision(shot, ship)){
+                    KillerPad pad = foundShipInPad(ship.getIp());
+                    if(pad == null){
+                        KillerPad.sendKillShip(getNextKiller().getOuWriter(), ship.getIp());
+                    } else {
+                        pad.killShip();
+                    }
+                }
+                
+            }
         }
+        
+        if(shot.getY() <= 0 | shot.getY() >= SCREEN_HEIGHT - (shot.getHeight()*2)){
+                shot.bounce();
+            }
+            if(shot.getX() <= 0){
+                previousKiller.sendShot((KillerShot) shot, 
+                       SCREEN_WIDTH - shot.getWidth()-10, shot.getY());
+                shot.die();
+            }
+            if(shot.getX() >= SCREEN_WIDTH - shot.getWidth()){
+                nextKiller.sendShot((KillerShot) shot, 10, shot.getY());
+                shot.die();
+            }
+    }
+    
+    public KillerPad foundShipInPad(String ip){
+        KillerPad killerPad = null;
+          for(int i = 0; i < killerPads.size(); i++){
+              if(killerPads.get(i).getIp().equals(ip)){
+                  killerPad = killerPads.get(i);
+              }
+          }  
+          return killerPad;
+    }
+    
+    public void setLeftConnection(String ip){
+        viewer.setLeftConnection(ip);
+    }
+    
+    public void setRightConnection(String ip){
+        viewer.setRightConnection(ip);
     }
 
     public static void main(String[] args) {

@@ -11,14 +11,21 @@ package killergame;
  */
 public class KillerRules {
     public static void testCollision(VisibleObject object1, VisibleObject object2){
-        if(object1.intersect(object2)){
-            if (object1 instanceof KillerMeteor && object2 instanceof KillerMeteor){
-                object1.bounce();
-            }
-            if(object1 instanceof KillerShot && object2 instanceof KillerShip){
+        /*if(object1.intersect(object2)){
+            if(object1 instanceof KillerShip && object2 instanceof KillerShot){
                 object1.die();
                 object2.die();
+                System.out.println("INTERSECTED");
             }
+        }*/
+    }
+    
+    public static boolean testShotCollision(KillerShot shot, KillerShip ship){
+        if(ship.intersect(shot) && !shot.getIp().equals(ship.getIp())){
+                    ship.die();
+                    shot.die();
+                    return true;
         }
+        return false;
     }
 }

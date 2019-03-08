@@ -40,26 +40,40 @@ public class ConnectionHandler implements Runnable {
 
         //If request from a new KillerPad (fromPnew:name&colorHex)
         if (line.startsWith("fromP")) {
-            //Add killer pad
-            KillerPad killerPad = new KillerPad(killerGame, socket,
-                    line.substring(line.indexOf(":") + 1));
-            killerGame.getKillerPads().add(killerPad);
-            new Thread(killerPad).start();
-            System.out.println("KP connected");
-
+            connectKillerPad(line);
+        
         //Else if request from previous killer (PK:port)
         } else if (line.startsWith("NK")) {
-            VisualHandler previousKiller = killerGame.getPreviousKiller();
-            previousKiller.setSocket(socket);
-            previousKiller.setPort(Integer.parseInt(line.substring(line.indexOf(":") + 1)));
-            System.out.println("PK connected");
+            connectPreviousKiller(line);
         
         //Else if request from next killer  (NK:port)
         } else if (line.startsWith("PK")) {
-            VisualHandler nextKiller = killerGame.getNextKiller();
-            nextKiller.setSocket(socket);
-            nextKiller.setPort(Integer.parseInt(line.substring(line.indexOf(":") + 1)));
-            System.out.println("NK connected");
+            connectNextKiller(line);
         } 
+    }
+    
+    private void connectKillerPad(String info){
+        //Add killer pad
+            KillerPad killerPad = new KillerPad(killerGame, socket,
+                    info.substring(info.indexOf(":") + 1));
+            killerGame.getKillerPads().add(killerPad);
+            new Thread(killerPad).start();
+            System.out.println("KP connected");
+    }
+    
+    private void connectPreviousKiller(String info){
+        VisualHandler previousKiller = killerGame.getPreviousKiller();
+        previousKiller.setSocket(socket);
+        previousKiller.setPort(Integer.parseInt(info.substring(info.indexOf(":") + 1)));
+        System.out.println("PK connected");
+        killerGame.setLeftConnection(socket.getInetAddress().getHostAddress());
+    }
+    
+    private void connectNextKiller(String info){
+        VisualHandler nextKiller = killerGame.getNextKiller();
+        nextKiller.setSocket(socket);
+        nextKiller.setPort(Integer.parseInt(info.substring(info.indexOf(":") + 1)));
+        System.out.println("NK connected");
+        killerGame.setRightConnection(socket.getInetAddress().getHostAddress());
     }
 }

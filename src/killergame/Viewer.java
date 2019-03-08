@@ -21,12 +21,24 @@ public class Viewer extends Canvas implements Runnable {
     private Image image = null;
     private Graphics imageGraphics;
     private KillerGame killerGame;
+    private String leftConnectionState;
+    private Color leftConnectionColor;
+    private String rightConnectionState;
+    private Color rightConnectionColor;
+    private String rightConnectionIp;
+    private String leftConnectionIp;
 
     public Viewer(KillerGame killerGame) {
         super();
         setSize(KillerGame.SCREEN_WIDTH, KillerGame.SCREEN_HEIGHT);
         setBackground(Color.BLACK);
         this.killerGame = killerGame;
+        leftConnectionState = "NOT CONNECTED";
+        rightConnectionState = "NOT CONNECTED";
+        leftConnectionColor = Color.RED;
+        rightConnectionColor = Color.RED;
+        leftConnectionIp = "";
+        rightConnectionIp = "";
     }
 
     @Override
@@ -42,6 +54,18 @@ public class Viewer extends Canvas implements Runnable {
             }
         }
     }
+    
+    public void setLeftConnection(String ip){
+        leftConnectionColor = Color.GREEN;
+        leftConnectionState = "CONNECTED";
+        leftConnectionIp = ip;
+    }
+    
+    public void setRightConnection(String ip){
+        rightConnectionColor = Color.GREEN;
+        rightConnectionState = "CONNECTED";
+        rightConnectionIp = ip;;
+    }
 
     private void gameRender() {
         if (image == null) {
@@ -53,14 +77,20 @@ public class Viewer extends Canvas implements Runnable {
                 imageGraphics = image.getGraphics();
             }
         }
+        
         //clear the background
         imageGraphics.setColor(Color.BLACK);
         imageGraphics.fillRect(0, 0, KillerGame.SCREEN_WIDTH, KillerGame.SCREEN_HEIGHT);
         for (int i = 0; i < killerGame.getVisibleObjects().size(); i++){
             killerGame.getVisibleObjects().get(i).paint(imageGraphics);
         }
+        imageGraphics.setColor(leftConnectionColor);
+        imageGraphics.drawString(leftConnectionState, 10, 50);
+        imageGraphics.drawString(leftConnectionIp, 10, 75);
+        imageGraphics.setColor(rightConnectionColor);
+        imageGraphics.drawString(rightConnectionState, KillerGame.SCREEN_WIDTH - 150, 50);
+        imageGraphics.drawString(rightConnectionIp, KillerGame.SCREEN_WIDTH - 150, 75);
     }
-
     
     @Override
     public void paint(Graphics g) {

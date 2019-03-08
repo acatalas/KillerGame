@@ -14,11 +14,37 @@ import java.awt.Graphics;
  */
 public class KillerShot extends Autonomous{
     
+    private boolean dead = false;
+    private String ip;
+    
     public KillerShot(KillerGame killerGame, Color color, 
             double x, double y, double xSpeed, double ySpeed,
-            int width, int height) {
+            int width, int height, String ip) {
         super(killerGame, color, x, y, xSpeed, ySpeed, width, height);
+        this.ip = ip;
     }
+    
+    @Override
+    public void run() {
+        while (!dead) {
+            killerGame.testShotCollision(this);
+            move();
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ex) {
+                System.err.println(ex);
+            }
+        }
+        killerGame.removeVisibleObject(this);
+    }
+    
+    @Override
+    public synchronized void move() {
+        x = (int)(x + xSpeed);
+        y = (int)(y + ySpeed);
+        rectangle.setLocation((int)x, (int)y);
+    }
+
     
     @Override
     public void paint(Graphics g){
@@ -38,7 +64,12 @@ public class KillerShot extends Autonomous{
         return ySpeed;
     }
     
+    public String getIp(){
+        return ip;
+    }
     
-    
-    
+    @Override
+    public void die() {
+        dead = true;
+    }
 }

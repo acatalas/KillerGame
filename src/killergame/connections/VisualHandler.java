@@ -43,6 +43,11 @@ public class VisualHandler implements Runnable{
         } catch (IOException e){
             System.err.println(e);
         }
+        if(killerGame.getNextKiller().equals(this)){
+            killerGame.setRightConnection(socket.getInetAddress().getHostAddress());
+        }else {
+            killerGame.setLeftConnection(socket.getInetAddress().getHostAddress());
+        }
     }
     
     public int getPort(){
@@ -123,7 +128,7 @@ public class VisualHandler implements Runnable{
         
         //RKS:shipIp:serverIp:serverPort:movement
         } else if(line.startsWith("RKS")){
-            KillerPad.readKillerAction(killerGame, out, line);
+            KillerPad.readKillerAction(killerGame, killerGame.getNextKiller().getOuWriter(), line);
             
             
         } else if(line.startsWith("KB")){
@@ -134,28 +139,39 @@ public class VisualHandler implements Runnable{
             double ySpeed = Double.valueOf(shotData[4]);
             Color color = Color.decode("#" + shotData[5]);
             
-            KillerShot shot = new KillerShot(killerGame, color, x, y, xSpeed, ySpeed, 10, 10);
+            KillerShot shot = new KillerShot(killerGame, color, x, y, xSpeed, ySpeed, 10, 10, "");
             killerGame.addVisibleObject(shot);
             new Thread(shot).start();
+        
+        } else if(line.startsWith("RDS")){
+            KillerPad killerPad = killerGame.foundShipInPad(line.split(":")[1]);
+            if(killerPad != null){
+                killerPad.killShip();
+            } else {
+                KillerPad.sendKillShip(killerGame.getNextKiller().getOuWriter(), line.split(":")[1]);
+            }
         }
     }
     
     //"KS:" + ip + ":" + color.getRGB() + ":" + name;
     public void sendShip(KillerShip ship, double x, double y){
-        System.out.println("KS:" + ship.getIp() + ":" + rgbToHex(ship.getColor()) + ":" + ship.getName() + ":" +  x + ":" + y + ":" + ship.getXSpeed() + ":" + ship.getYSpeed());
-        out.println("KS:" + ship.getIp() + ":" + rgbToHex(ship.getColor()) + ":" + ship.getName() + ":" +  x + ":" + y + ":" + ship.getXSpeed() + ":" + ship.getYSpeed());
+        System.out.println("KS:" + ship.getIp());
+        out.println("KS:" + ship.getIp() + ":" + rgbToHex(ship.getColor()) + ":" 
+                + ship.getName() + ":" +  x + ":" + y + ":" + ship.getXSpeed() 
+                + ":" + ship.getYSpeed());
     }
     
     //"KB:" + x + y + xSpeed + ySpeed + color
     public void sendShot(KillerShot shot, double x, double y){
-        out.println("KB:" + x + ":" + y + ":" + shot.getXSpeed() + ":" + shot.getYSpeed() + ":" + rgbToHex(shot.getColor()));
+        out.println("KB:" + x + ":" + y + ":" + shot.getXSpeed() 
+                + ":" + shot.getYSpeed() + ":" + rgbToHex(shot.getColor()));
     }
     
     private String rgbToHex(Color color){
         String hex = Integer.toHexString(color.getRGB() & 0xffffff);
         if (hex.length() < 6) {
             hex = "0" + hex;
-            }           
+        }           
         return hex;
     }
 }

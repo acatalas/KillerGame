@@ -42,23 +42,25 @@ public class KillerShip extends Controlled {
                 System.err.println(ex);
             }
         }
-        killerGame.removeVisibleObject(this);
+        killerGame.removeKillerShip(this);
     }
     
     @Override
     public void move(){
         x = (int)(x + xSpeed);
         y = (int)(y + ySpeed);
+        
+        rectangle.setBounds((int)x, (int)y, width, height);
     }
     
     public void shoot(){
         KillerShot shot = null;
         if(xSpeed == 0){
             shot = new KillerShot(killerGame, color, 
-                x, y , prevXSpeed, prevYSpeed, 10, 10);
+                x, y , prevXSpeed, prevYSpeed, 10, 10, ip);
         } else {
             shot = new KillerShot(killerGame, color, 
-                x, y , xSpeed, ySpeed, 10, 10);
+                x, y , xSpeed, ySpeed, 10, 10, ip);
         }
         
         killerGame.addVisibleObject(shot);
